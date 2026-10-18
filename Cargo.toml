@@ -11,3 +11,4 @@ path = "src/main.rs"
 PulgaWinLib = { path = "../PulgaWinLib" }
 PulgaGuiLib = { path = "../PulgaGuiLib" }
 pulgamecanica_matrix = "1.0.1"
+rand = "0.10.3"
