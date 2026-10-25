@@ -23,12 +23,13 @@ their own:
 
 Every push to `main` runs `.github/workflows/release.yml` and publishes a
 GitHub release named after the commit's secret codename (`make release-name`,
-e.g. "Atomic Moulinette") with tag `make release-tag` (`v<version>-<sha>`):
+e.g. "Lunar Bocal") with the unique tag `make release-tag` (`v<version>-<sha>`).
+Files are prefixed `make release-pkg` (`42run-v<version>-<Codename>`):
 
-- `42run-<tag>-src.tar.gz` — this repo + the libs, self-contained (`make dist`)
-- `42run-<tag>-linux-x86_64.tar.gz`, `-linux-aarch64.tar.gz` (built on Ubuntu 22.04 for older-glibc compatibility)
-- `42run-<tag>-windows-x86_64.zip`
-- `42run-<tag>-macos-universal.tar.gz` (Intel + Apple Silicon, unsigned)
+- `42run-v0.1.0-Lunar-Bocal-src.tar.gz` — this repo + the libs, self-contained (`make dist`)
+- `…-linux-x86_64.tar.gz`, `…-linux-aarch64.tar.gz` (built on Ubuntu 22.04 for older-glibc compatibility)
+- `…-windows-x86_64.zip`
+- `…-macos-universal.tar.gz` (Intel + Apple Silicon, unsigned)
 
 Each binary is built from the source tarball itself, so a release proves its
 own source builds on every OS. The lib commits that went in are in the
