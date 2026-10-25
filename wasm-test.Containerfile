@@ -4,7 +4,7 @@
 # still letting the compiled .wasm genuinely run in a browser engine.
 #
 # Build once: podman build -t pulga-wasm-test -f wasm-test.Containerfile .
-# Run: see PulgaGuiLib's `make wasm-test` (mounts the crate plus any sibling
+# Run: see pulga_gui_lib's `make wasm-test` (mounts the crate plus any sibling
 # path-dependencies at their original host paths, since `cargo metadata`
 # needs path deps to exist on disk even when cfg-gated out of the wasm32
 # build).

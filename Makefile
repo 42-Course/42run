@@ -1,4 +1,4 @@
-PROJECTS := PulgaWinLib PulgaGuiLib pulga_run
+PROJECTS := pulga_win_lib pulga_gui_lib pulga_run
 
 .PHONY: help build test fmt clippy clean run wasm-image $(PROJECTS)
 
@@ -41,5 +41,5 @@ clean: ## cargo clean every project
 run: ## Run the game (pulga_run)
 	cd pulga_run && cargo run
 
-wasm-image: ## Build the shared headless-browser wasm test image (used by PulgaGuiLib's `make wasm-test`)
+wasm-image: ## Build the shared headless-browser wasm test image (used by pulga_gui_lib's `make wasm-test`)
 	podman build -t pulga-wasm-test -f wasm-test.Containerfile .

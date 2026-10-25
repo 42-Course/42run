@@ -6,9 +6,9 @@ own git history) living as a sibling directory under `~/`, symlinked in here.
 
 ## Projects
 
-- `PulgaWinLib` — windowing/graphics lib (OpenGL/Vulkan, parsing, camera, shaders, 2d/3d canvas)
-- `PulgaGuiLib` — GUI widgets, depends on `PulgaWinLib`
-- `pulga_run` — the game binary, depends on `PulgaWinLib` and `PulgaGuiLib`
+- `pulga_win_lib` — windowing/graphics lib (OpenGL/Vulkan, parsing, camera, shaders, 2d/3d canvas)
+- `pulga_gui_lib` — GUI widgets, depends on `pulga_win_lib`
+- `pulga_run` — the game binary, depends on `pulga_win_lib` and `pulga_gui_lib`
 
 `pulga_run` also depends on [`pulgamecanica_matrix`](https://crates.io/crates/pulgamecanica_matrix)
 (matrix/3d-transform math), already published on crates.io — pulled in as a
@@ -21,7 +21,7 @@ cargo command across every project. `make run` runs the game.
 
 ---
 
-## PulgaWinLib
+## pulga_win_lib
 	Graphical library which allows compilation for any system, and deployment for a fully prepared and packed application (Windoxs, iOS, Android, iPhone, Linux - deb, package)
 
 	- OpenGL support (this project specifically will use OpenGL version)
@@ -32,7 +32,7 @@ cargo command across every project. `make run` runs the game.
 	- Shaders & Renderizer support
 	- 2d & 3d canvas support
 
-## PulgaGuiLib: An underlying library which depends on PulgaWinLib and includes a bunch of ready GUI elements, such as text support, Canvases, Selectors; etc
+## pulga_gui_lib: An underlying library which depends on pulga_win_lib and includes a bunch of ready GUI elements, such as text support, Canvases, Selectors; etc
 
 ## pulgamecanica_matrix:
 	location: crates.io/crates/pulgamecanica_matrix (already published, used as a regular dependency)
