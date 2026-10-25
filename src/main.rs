@@ -110,7 +110,12 @@ impl Game {
 
     fn draw_cube(&self, model: &transform::Mat4) {
         unsafe {
-            gl::UniformMatrix4fv(self.model_loc, 1, gl::TRUE, transform::to_gl(model).as_ptr());
+            gl::UniformMatrix4fv(
+                self.model_loc,
+                1,
+                gl::TRUE,
+                transform::to_gl(model).as_ptr(),
+            );
             self.cube_mesh.as_ref().unwrap().draw();
         }
     }
@@ -231,27 +236,41 @@ impl App for Game {
             gl::ClearColor(0.53, 0.75, 0.92, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             gl::UseProgram(self.program);
-            gl::UniformMatrix4fv(self.proj_loc, 1, gl::TRUE, transform::to_gl(&self.camera.proj()).as_ptr());
-            gl::UniformMatrix4fv(self.view_loc, 1, gl::TRUE, transform::to_gl(&self.camera.view()).as_ptr());
+            gl::UniformMatrix4fv(
+                self.proj_loc,
+                1,
+                gl::TRUE,
+                transform::to_gl(&self.camera.proj()).as_ptr(),
+            );
+            gl::UniformMatrix4fv(
+                self.view_loc,
+                1,
+                gl::TRUE,
+                transform::to_gl(&self.camera.view()).as_ptr(),
+            );
 
             // Ground.
             let ground_model = transform::translate([0.0, 0.0, -180.0]);
-            gl::UniformMatrix4fv(self.model_loc, 1, gl::TRUE, transform::to_gl(&ground_model).as_ptr());
+            gl::UniformMatrix4fv(
+                self.model_loc,
+                1,
+                gl::TRUE,
+                transform::to_gl(&ground_model).as_ptr(),
+            );
             self.ground_mesh.as_ref().unwrap().draw();
 
             // Player.
-            let player_model = transform::translate([
-                self.player_x,
-                PLAYER_SIZE / 2.0 + self.player_y,
-                0.0,
-            ])
-            .mul_mat(&transform::scale([PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE]));
+            let player_model =
+                transform::translate([self.player_x, PLAYER_SIZE / 2.0 + self.player_y, 0.0])
+                    .mul_mat(&transform::scale([PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE]));
             self.draw_cube(&player_model);
 
             // Obstacles.
             for o in &self.obstacles {
-                let model = transform::translate([lane_x(o.lane), OBSTACLE_SIZE / 2.0, o.z])
-                    .mul_mat(&transform::scale([OBSTACLE_SIZE, OBSTACLE_SIZE, OBSTACLE_SIZE]));
+                let model =
+                    transform::translate([lane_x(o.lane), OBSTACLE_SIZE / 2.0, o.z]).mul_mat(
+                        &transform::scale([OBSTACLE_SIZE, OBSTACLE_SIZE, OBSTACLE_SIZE]),
+                    );
                 self.draw_cube(&model);
             }
         }
@@ -259,5 +278,12 @@ impl App for Game {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    run(WindowConfig { title: "42run".into(), width: 1280, height: 720 }, Game::new())
+    run(
+        WindowConfig {
+            title: "42run".into(),
+            width: 1280,
+            height: 720,
+        },
+        Game::new(),
+    )
 }
