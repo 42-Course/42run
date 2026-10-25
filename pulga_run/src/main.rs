@@ -3,6 +3,7 @@
 //! collision, distance meter. No campus-themed set or textures yet — see
 //! the README for what's still missing.
 
+use pulga_win_lib::time::Instant;
 use pulga_win_lib::{
     App, Camera, Event, Key, WindowConfig, gl,
     gl_mesh::GlMesh,
@@ -11,7 +12,6 @@ use pulga_win_lib::{
     run, shader, transform,
 };
 use rand::RngExt;
-use pulga_win_lib::time::Instant;
 
 const LANE_WIDTH: f32 = 2.2;
 const LANE_COUNT: i32 = 3; // lanes at x = -LANE_WIDTH, 0, +LANE_WIDTH

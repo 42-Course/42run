@@ -21,10 +21,18 @@ their own:
 
 ## Releases
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`: it bundles this repo
-plus the libs (at their current `main`, commits listed in the release notes)
-into one self-contained source tarball, checks it builds without cloning
-anything, and attaches it to the GitHub release.
+Every push to `main` runs `.github/workflows/release.yml` and publishes a
+GitHub release named after the commit's secret codename (`make release-name`,
+e.g. "Atomic Moulinette") with tag `make release-tag` (`v<version>-<sha>`):
+
+- `42run-<tag>-src.tar.gz` — this repo + the libs, self-contained (`make dist`)
+- `42run-<tag>-linux-x86_64.tar.gz`, `-linux-aarch64.tar.gz` (built on Ubuntu 22.04 for older-glibc compatibility)
+- `42run-<tag>-windows-x86_64.zip`
+- `42run-<tag>-macos-universal.tar.gz` (Intel + Apple Silicon, unsigned)
+
+Each binary is built from the source tarball itself, so a release proves its
+own source builds on every OS. The lib commits that went in are in the
+release notes. Branches and PRs only get `ci.yml` (build + test).
 
 ---
 

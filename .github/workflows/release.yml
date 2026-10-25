@@ -1,41 +1,107 @@
-# On a version tag: bundle this repo + the lib subrepos (which are
-# gitignored here) into one self-contained source tarball, prove it builds
-# on its own, and attach it to a GitHub release.
+# Every push to main becomes a GitHub release: a self-contained source
+# tarball (repo + lib subrepos) and a 42run binary per OS/arch, each built
+# from that same tarball. Tag and codename come from `make release-tag` /
+# `make release-name`.
 name: release
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
 
 permissions:
   contents: write
 
 jobs:
-  source-release:
-    runs-on: ubuntu-latest
+  source:
+    runs-on: ubuntu-22.04
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      name: ${{ steps.meta.outputs.name }}
     steps:
       - uses: actions/checkout@v4
       - run: make libs
-
-      - name: Bundle sources
+      - run: make test
+      - id: meta
         run: |
-          name=42run-${GITHUB_REF_NAME}
-          mkdir -p dist/$name
-          git archive HEAD | tar -x -C dist/$name
-          for lib in pulga_win_lib pulga_gui_lib; do
-            mkdir dist/$name/$lib
-            git -C $lib archive HEAD | tar -x -C dist/$name/$lib
-            echo "- $lib @ $(git -C $lib rev-parse HEAD)" >> dist/notes.md
-          done
-          tar -czf dist/$name.tar.gz -C dist $name
+          echo "tag=$(make -s release-tag)" >> "$GITHUB_OUTPUT"
+          echo "name=$(make -s release-name)" >> "$GITHUB_OUTPUT"
+      - run: make dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source
+          path: dist/
 
-      # Libs are already inside, so this must build without cloning anything.
-      - name: Build from the tarball alone
-        run: make -C dist/42run-${GITHUB_REF_NAME}
+  build:
+    needs: source
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 22.04 on purpose: its older glibc keeps the binary runnable on
+          # older distros (and the 42 cluster).
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, label: linux-x86_64 }
+          - { os: ubuntu-22.04-arm, target: aarch64-unknown-linux-gnu, label: linux-aarch64 }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, label: windows-x86_64 }
+          # One lipo'd binary for both Intel and Apple Silicon Macs.
+          - { os: macos-latest, target: universal-apple-darwin, label: macos-universal }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      TAG: ${{ needs.source.outputs.tag }}
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: source
+          path: dist
+      - name: Ensure a Rust toolchain
+        run: command -v cargo || { curl -sSf https://sh.rustup.rs | sh -s -- -y; echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"; }
+      - name: Build from the source tarball
+        run: |
+          tar -xzf dist/42run-$TAG-src.tar.gz
+          cd 42run-$TAG
+          if [ "${{ matrix.target }}" = universal-apple-darwin ]; then
+            rustup target add x86_64-apple-darwin aarch64-apple-darwin
+            cargo build --release --bin 42run --target x86_64-apple-darwin
+            cargo build --release --bin 42run --target aarch64-apple-darwin
+            lipo -create -output ../42run \
+              "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/42run" \
+              "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/42run"
+          else
+            rustup target add ${{ matrix.target }}
+            cargo build --release --bin 42run --target ${{ matrix.target }}
+            cp "$CARGO_TARGET_DIR/${{ matrix.target }}/release/42run"* ..
+          fi
+      - name: Package
+        run: |
+          mkdir out
+          pkg=42run-$TAG-${{ matrix.label }}
+          if [ "$RUNNER_OS" = Windows ]; then
+            7z a "out/$pkg.zip" 42run.exe
+          else
+            tar -czf "out/$pkg.tar.gz" 42run
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.label }}
+          path: out/
 
-      - name: Publish release
+  publish:
+    needs: [source, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.source.outputs.tag }}
+          NAME: ${{ needs.source.outputs.name }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "dist/42run-$GITHUB_REF_NAME.tar.gz" \
-            --title "$GITHUB_REF_NAME" --notes-file dist/notes.md
+          gh release create "$TAG" dist/*.tar.gz dist/*.zip \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$NAME ($TAG)" --notes-file dist/notes.md

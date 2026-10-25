@@ -2,12 +2,24 @@ NAME    := 42run
 LIBS    := pulga_win_lib pulga_gui_lib
 LIB_URL := https://github.com/pulgamecanica
 
+# Release identity: tag from the game's version + commit, plus a "secret"
+# codename picked from the commit hash (first hex digit -> adjective,
+# second -> noun), so every push to main gets its own named release.
+VERSION = $(shell sed -n 's/^version = "\(.*\)"/\1/p' pulga_run/Cargo.toml | head -n1)
+SHA     = $(shell git rev-parse --short=7 HEAD)
+TAG     = v$(VERSION)-$(SHA)
+ADJ     := Atomic Bouncy Cosmic Dizzy Electric Feral Gnarly Hyper Jolly Lunar Mighty Neon Quantum Rusty Sneaky Turbo
+NOUN    := Marvin Norminette Moulinette Piscine Bocal Cadet Segfault Kitten Motorbike Director Cluster Pointer Malloc Bus Hoverboard DeLorean
+
 # Wherever .cargo/config.toml (or $CARGO_TARGET_DIR) puts cargo's output.
 TARGET_DIR = $(shell cargo metadata --format-version 1 --no-deps | sed -n 's/.*"target_directory":"\([^"]*\)".*/\1/p')
 
-.PHONY: all $(NAME) libs test fmt clippy doc run clean fclean re help wasm-image
+.PHONY: all $(NAME) libs test fmt clippy doc run clean fclean re help wasm-image release-tag release-name dist
 
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := help
+
+help: ## Show this help
+	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 all: $(NAME) ## Build the release 42run binary into the repo root
 
@@ -47,13 +59,30 @@ clean: ## cargo clean the libs and the workspace
 	@for p in $(LIBS); do [ -d $$p ] && (cd $$p && cargo clean) || true; done
 	cargo clean
 
-fclean: clean ## clean + remove the 42run binary
-	rm -f $(NAME)
+fclean: clean ## clean + remove the 42run binary and dist/
+	rm -rf $(NAME) dist
 
 re: fclean all ## Rebuild from scratch
 
+release-tag: ## Print this commit's release tag
+	@echo $(TAG)
+
+release-name: ## Print this commit's secret release codename
+	@a=$$(printf '%d' 0x$$(echo $(SHA) | cut -c1)); n=$$(printf '%d' 0x$$(echo $(SHA) | cut -c2)); \
+	echo "$$(echo $(ADJ) | cut -d' ' -f$$((a + 1))) $$(echo $(NOUN) | cut -d' ' -f$$((n + 1)))"
+
+# Committed state only (git archive): repo + libs in one tarball that builds
+# with no cloning, plus dist/notes.md recording which lib commits went in.
+dist: | $(LIBS) ## Bundle repo + libs into dist/42run-<tag>-src.tar.gz
+	rm -rf dist && mkdir -p dist/42run-$(TAG)
+	git archive HEAD | tar -x -C dist/42run-$(TAG)
+	@for l in $(LIBS); do \
+		mkdir dist/42run-$(TAG)/$$l; \
+		git -C $$l archive HEAD | tar -x -C dist/42run-$(TAG)/$$l; \
+		echo "- $$l @ $$(git -C $$l rev-parse HEAD)" >> dist/notes.md; \
+	done
+	tar -czf dist/42run-$(TAG)-src.tar.gz -C dist 42run-$(TAG)
+	rm -rf dist/42run-$(TAG)
+
 wasm-image: ## Build the shared headless-browser wasm test image (used by pulga_gui_lib's `make wasm-test`)
 	podman build -t pulga-wasm-test -f wasm-test.Containerfile .
-
-help: ## Show this help
-	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
