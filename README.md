@@ -1,13 +1,14 @@
 # Like Tempe run for 42 school
 
-All projects are Rust. This repo is the Cargo workspace for the game
-(`pulga_run`, the `42run` binary). The two libraries are **their own git
+All projects are Rust. This repo is the Cargo workspace for the engine
+(`pulga_engine`) and the game (`pulga_run`, the `42run` binary). The two libraries are **their own git
 repos**, cloned into this root and gitignored here, so they stay usable on
 their own:
 
 - `pulga_win_lib` — windowing/graphics lib (OpenGL/Vulkan, parsing, camera, shaders, 2d/3d canvas) — [repo](https://github.com/pulgamecanica/pulga_win_lib)
 - `pulga_gui_lib` — GUI widgets, depends on `pulga_win_lib` — [repo](https://github.com/pulgamecanica/pulga_gui_lib)
-- `pulga_run` — the game binary, part of this repo, depends on both libs
+- `pulga_engine` — the game engine, part of this repo: game loop + frame timing, scene (`World` of entities with a transform hierarchy), renderer (the only code that calls GL), HUD text with a built-in bitmap font. Depends on both libs
+- `pulga_run` — the game binary, part of this repo: only the game's rules, on top of `pulga_engine`
 
 `pulga_run` also depends on [`pulgamecanica_matrix`](https://crates.io/crates/pulgamecanica_matrix)
 (matrix/3d-transform math), already published on crates.io.

@@ -8,7 +8,5 @@ name = "42run"
 path = "src/main.rs"
 
 [dependencies]
-pulga_win_lib = { path = "../pulga_win_lib" }
-pulga_gui_lib = { path = "../pulga_gui_lib" }
-pulgamecanica_matrix = "1.0.3"
+pulga_engine = { path = "../pulga_engine" }
 rand = "0.10.3"

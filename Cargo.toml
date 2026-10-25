@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["pulga_run"]
+members = ["pulga_engine", "pulga_run"]
 # Own git repos, cloned in by the Makefile; excluded so cargo commands run
 # inside them don't mistake this root for their workspace.
 exclude = ["pulga_win_lib", "pulga_gui_lib"]

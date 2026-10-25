@@ -1,0 +1,12 @@
+[package]
+name = "pulga_engine"
+version = "0.1.0"
+edition = "2024"
+description = "Game engine for 42run: scene/world, renderer, HUD, game loop"
+
+[dependencies]
+pulga_win_lib = { path = "../pulga_win_lib" }
+pulga_gui_lib = { path = "../pulga_gui_lib" }
+
+[dev-dependencies]
+pulgamecanica_matrix = "1.0.3"
