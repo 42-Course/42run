@@ -1,0 +1,14 @@
+[package]
+name = "pulga_run"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "42run"
+path = "src/main.rs"
+
+[dependencies]
+pulga_win_lib = { path = "../pulga_win_lib" }
+pulga_gui_lib = { path = "../pulga_gui_lib" }
+pulgamecanica_matrix = "1.0.2"
+rand = "0.10.3"
