@@ -1,0 +1,4 @@
+# target/ is heavy and home has a tiny 42-school quota; goinfre is the large
+# scratch mount meant for this (same convention as the lib subrepos).
+[build]
+target-dir = "../goinfre/cargo-target/42Run"

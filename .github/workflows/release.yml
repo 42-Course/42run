@@ -1,0 +1,41 @@
+# On a version tag: bundle this repo + the lib subrepos (which are
+# gitignored here) into one self-contained source tarball, prove it builds
+# on its own, and attach it to a GitHub release.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  source-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make libs
+
+      - name: Bundle sources
+        run: |
+          name=42run-${GITHUB_REF_NAME}
+          mkdir -p dist/$name
+          git archive HEAD | tar -x -C dist/$name
+          for lib in pulga_win_lib pulga_gui_lib; do
+            mkdir dist/$name/$lib
+            git -C $lib archive HEAD | tar -x -C dist/$name/$lib
+            echo "- $lib @ $(git -C $lib rev-parse HEAD)" >> dist/notes.md
+          done
+          tar -czf dist/$name.tar.gz -C dist $name
+
+      # Libs are already inside, so this must build without cloning anything.
+      - name: Build from the tarball alone
+        run: make -C dist/42run-${GITHUB_REF_NAME}
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "dist/42run-$GITHUB_REF_NAME.tar.gz" \
+            --title "$GITHUB_REF_NAME" --notes-file dist/notes.md
