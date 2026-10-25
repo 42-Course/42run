@@ -1176,9 +1176,9 @@ dependencies = [
 
 [[package]]
 name = "pulgamecanica_matrix"
-version = "1.0.2"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b0d27e3679e998a73579d261644ddeaa4d995c6081f67cc0fdddc33219df90b"
+checksum = "dce6462a492cf03bd6da96e15dfe97c6fd47a1f0c31b3402a26c52f2fad45bbd"
 dependencies = [
  "num",
 ]
