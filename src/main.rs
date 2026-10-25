@@ -3,7 +3,7 @@
 //! collision, distance meter. No campus-themed set or textures yet — see
 //! the README for what's still missing.
 
-use PulgaWinLib::{
+use pulga_win_lib::{
     App, Camera, Event, Key, WindowConfig, gl,
     gl_mesh::GlMesh,
     obj::Mesh,
@@ -118,8 +118,8 @@ impl Game {
 
 impl App for Game {
     fn init(&mut self) {
-        let vert_src = include_str!("../../PulgaWinLib/assets/shaders/mesh.vert");
-        let frag_src = include_str!("../../PulgaWinLib/assets/shaders/mesh.frag");
+        let vert_src = include_str!("../../pulga_win_lib/assets/shaders/mesh.vert");
+        let frag_src = include_str!("../../pulga_win_lib/assets/shaders/mesh.frag");
         unsafe {
             self.program =
                 shader::link_program(vert_src, frag_src).expect("shader compile/link failed");

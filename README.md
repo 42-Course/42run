@@ -4,8 +4,8 @@ The `42run` game itself — a Temple Run–style endless runner, built per the
 `subject.en.pdf` spec in the [42Run](../42Run) root. Builds the `42run`
 binary (see `[[bin]]` in `Cargo.toml`).
 
-Depends on [`PulgaWinLib`](../PulgaWinLib) (windowing/OpenGL/mesh/shader/
-camera), [`PulgaGuiLib`](../PulgaGuiLib) (GUI, not wired in yet), and the
+Depends on [`pulga_win_lib`](../pulga_win_lib) (windowing/OpenGL/mesh/shader/
+camera), [`pulga_gui_lib`](../pulga_gui_lib) (GUI, not wired in yet), and the
 published [`pulgamecanica_matrix`](https://crates.io/crates/pulgamecanica_matrix)
 crate (matrix/transform math).
 
@@ -13,7 +13,7 @@ crate (matrix/transform math).
 
 Arrow keys move between 3 lanes, Space jumps, cube obstacles scroll toward
 you and end the run on collision (Space restarts), the window title shows a
-live distance meter. All geometry is procedural (`PulgaWinLib::primitives`)
+live distance meter. All geometry is procedural (`pulga_win_lib::primitives`)
 using the same shaded-cube/plane pipeline the OBJ-mesh demo uses.
 
 ```sh
@@ -29,5 +29,5 @@ make         # make help
 - The "glued-together tunnel/block" scene-building system described in the
   root README (currently a straight, unobstructed lane).
 - Textures, a real HUD (distance meter is the window title, not on-screen
-  text — `PulgaGuiLib` has no text rendering yet either).
+  text — `pulga_gui_lib` has no text rendering yet either).
 - Slide, power-ups, or any bonus-part ideas.

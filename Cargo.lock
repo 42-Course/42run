@@ -3,25 +3,6 @@
 version = 4
 
 [[package]]
-name = "PulgaGuiLib"
-version = "0.1.0"
-dependencies = [
- "PulgaWinLib",
-]
-
-[[package]]
-name = "PulgaWinLib"
-version = "0.1.0"
-dependencies = [
- "gl",
- "glutin",
- "glutin-winit",
- "pulgamecanica_matrix",
- "raw-window-handle",
- "winit",
-]
-
-[[package]]
 name = "ab_glyph"
 version = "0.2.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1164,13 +1145,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "pulga_gui_lib"
+version = "0.1.0"
+dependencies = [
+ "pulga_win_lib",
+]
+
+[[package]]
 name = "pulga_run"
 version = "0.1.0"
 dependencies = [
- "PulgaGuiLib",
- "PulgaWinLib",
+ "pulga_gui_lib",
+ "pulga_win_lib",
  "pulgamecanica_matrix",
  "rand",
+]
+
+[[package]]
+name = "pulga_win_lib"
+version = "0.1.0"
+dependencies = [
+ "gl",
+ "glutin",
+ "glutin-winit",
+ "pulgamecanica_matrix",
+ "raw-window-handle",
+ "winit",
 ]
 
 [[package]]
