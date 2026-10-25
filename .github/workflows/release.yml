@@ -1,7 +1,7 @@
 # Every push to main becomes a GitHub release: a self-contained source
 # tarball (repo + lib subrepos) and a 42run binary per OS/arch, each built
-# from that same tarball. Tag and codename come from `make release-tag` /
-# `make release-name`.
+# from that same tarball. Tag, codename and file prefix come from
+# `make release-tag` / `make release-name` / `make release-pkg`.
 name: release
 
 on:
@@ -17,6 +17,7 @@ jobs:
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
       name: ${{ steps.meta.outputs.name }}
+      pkg: ${{ steps.meta.outputs.pkg }}
     steps:
       - uses: actions/checkout@v4
       - run: make libs
@@ -25,6 +26,7 @@ jobs:
         run: |
           echo "tag=$(make -s release-tag)" >> "$GITHUB_OUTPUT"
           echo "name=$(make -s release-name)" >> "$GITHUB_OUTPUT"
+          echo "pkg=$(make -s release-pkg)" >> "$GITHUB_OUTPUT"
       - run: make dist
       - uses: actions/upload-artifact@v4
         with:
@@ -49,7 +51,7 @@ jobs:
       run:
         shell: bash
     env:
-      TAG: ${{ needs.source.outputs.tag }}
+      PKG: ${{ needs.source.outputs.pkg }}
       CARGO_TARGET_DIR: ${{ github.workspace }}/target
     steps:
       - uses: actions/download-artifact@v4
@@ -60,8 +62,8 @@ jobs:
         run: command -v cargo || { curl -sSf https://sh.rustup.rs | sh -s -- -y; echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"; }
       - name: Build from the source tarball
         run: |
-          tar -xzf dist/42run-$TAG-src.tar.gz
-          cd 42run-$TAG
+          tar -xzf dist/$PKG-src.tar.gz
+          cd $PKG
           if [ "${{ matrix.target }}" = universal-apple-darwin ]; then
             rustup target add x86_64-apple-darwin aarch64-apple-darwin
             cargo build --release --bin 42run --target x86_64-apple-darwin
@@ -77,7 +79,7 @@ jobs:
       - name: Package
         run: |
           mkdir out
-          pkg=42run-$TAG-${{ matrix.label }}
+          pkg=$PKG-${{ matrix.label }}
           if [ "$RUNNER_OS" = Windows ]; then
             7z a "out/$pkg.zip" 42run.exe
           else
