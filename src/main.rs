@@ -11,11 +11,11 @@ use pulga_win_lib::{
     run, shader, transform,
 };
 use rand::RngExt;
-use std::time::Instant;
+use pulga_win_lib::time::Instant;
 
 const LANE_WIDTH: f32 = 2.2;
 const LANE_COUNT: i32 = 3; // lanes at x = -LANE_WIDTH, 0, +LANE_WIDTH
-const PLAYER_SIZE: f32 = 0.8;
+const PLAYER_SIZE: f32 = 1.0;
 const OBSTACLE_SIZE: f32 = 1.0;
 const GRAVITY: f32 = -24.0;
 const JUMP_VELOCITY: f32 = 9.0;

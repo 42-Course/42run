@@ -1,4 +1,4 @@
 # target/ is heavy (link artifacts, incremental cache) and home has a tiny
 # 42-school quota; goinfre is the large scratch mount meant for this.
 [build]
-target-dir = "../goinfre/cargo-target/pulga_run"
+target-dir = "../../goinfre/cargo-target/pulga_run"
