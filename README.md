@@ -7,15 +7,16 @@ their own:
 
 - `pulga_win_lib` — windowing/graphics lib (OpenGL/Vulkan, parsing, camera, shaders, 2d/3d canvas) — [repo](https://github.com/pulgamecanica/pulga_win_lib)
 - `pulga_gui_lib` — GUI widgets, depends on `pulga_win_lib` — [repo](https://github.com/pulgamecanica/pulga_gui_lib)
-- `pulga_engine` — the game engine, part of this repo: game loop + frame timing, scene (`World` of entities with a transform hierarchy), renderer (the only code that calls GL), HUD text with a built-in bitmap font. Depends on both libs
-- `pulga_run` — the game binary, part of this repo: only the game's rules, on top of `pulga_engine`
+- `pulga_engine` — the game engine, part of this repo: a library games are written against in Rust (game loop, scene, tiles, track gluing, projects, physics/raycasts) plus **`pulga_editor`**, the program to build a project's tiles and preview runs. Depends on both libs
+- `pulga_run` — the game, part of this repo: a `pulga_engine` project (`project.toml` from the editor + its Rust rules), builds the `42run` binary
 
 `pulga_run` also depends on [`pulgamecanica_matrix`](https://crates.io/crates/pulgamecanica_matrix)
 (matrix/3d-transform math), already published on crates.io.
 
 ## Makefile
 
-`make` clones the libs if they're missing and builds the release `./42run`.
+`make` clones the libs if they're missing and builds the release `./42run`;
+`make editor` builds `./pulga_editor`, `make edit` opens `pulga_run` in it.
 `make test` / `make fmt` / `make clippy` / `make clean` / `make fclean` /
 `make re` cover the libs and the workspace; `make run` runs the game;
 `make help` lists everything.
@@ -28,7 +29,8 @@ e.g. "Lunar Bocal") with the unique tag `make release-tag` (`v<version>-<sha>`).
 Files are prefixed `make release-pkg` (`42run-v<version>-<Codename>`):
 
 - `42run-v0.1.0-Lunar-Bocal-src.tar.gz` — this repo + the libs, self-contained (`make dist`)
-- `…-linux-x86_64.tar.gz`, `…-linux-aarch64.tar.gz` (built on Ubuntu 22.04 for older-glibc compatibility)
+- `pulga_editor-v0.1.0-Lunar-Bocal-<platform>` — the engine's editor, with the `pulga_run` project to open (`make release-editor-pkg`)
+- `42run-…-linux-x86_64.tar.gz`, `…-linux-aarch64.tar.gz` (built on Ubuntu 22.04 for older-glibc compatibility)
 - `…-windows-x86_64.zip`
 - `…-macos-universal.tar.gz` (Intel + Apple Silicon, unsigned)
 

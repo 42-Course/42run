@@ -1,0 +1,159 @@
+name = "pulga_run"
+
+[[tiles]]
+name = "straight"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "left"
+kind = "left"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -4.25]
+size = [7.0, 0.2, 8.5]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "scenery"
+position = [-4.25, -0.1, -5.0]
+size = [1.5, 0.2, 7.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "right"
+kind = "right"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -4.25]
+size = [7.0, 0.2, 8.5]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "scenery"
+position = [4.25, -0.1, -5.0]
+size = [1.5, 0.2, 7.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "fork"
+kind = "fork"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -4.25]
+size = [7.0, 0.2, 8.5]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "scenery"
+position = [-4.25, -0.1, -5.0]
+size = [1.5, 0.2, 7.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "scenery"
+position = [4.25, -0.1, -5.0]
+size = [1.5, 0.2, 7.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "block-left"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "obstacle"
+position = [-2.2, 0.5, -5.0]
+size = [1.0, 1.0, 1.0]
+color = [0.8, 0.25, 0.2]
+
+[[tiles]]
+name = "block-middle"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "obstacle"
+position = [0.0, 0.5, -5.0]
+size = [1.0, 1.0, 1.0]
+color = [0.8, 0.25, 0.2]
+
+[[tiles]]
+name = "block-right"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "obstacle"
+position = [2.2, 0.5, -5.0]
+size = [1.0, 1.0, 1.0]
+color = [0.8, 0.25, 0.2]
+
+[[tiles]]
+name = "straight-1"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "straight-2"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "straight-3"
+kind = "straight"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -5.0]
+size = [7.0, 0.2, 10.0]
+color = [0.55, 0.55, 0.58]
+
+[[tiles]]
+name = "left-1"
+kind = "left"
+
+[[tiles.props]]
+kind = "scenery"
+position = [0.0, -0.1, -4.25]
+size = [7.0, 0.2, 8.5]
+color = [0.55, 0.55, 0.58]
+
+[[tiles.props]]
+kind = "scenery"
+position = [-4.25, -0.1, -5.0]
+size = [1.5, 0.2, 7.0]
+color = [0.55, 0.55, 0.58]

@@ -1,7 +1,9 @@
 # Every push to main becomes a GitHub release: a self-contained source
-# tarball (repo + lib subrepos) and a 42run binary per OS/arch, each built
+# tarball (repo + lib subrepos), and per OS/arch the game (42run) and the
+# engine's editor (pulga_editor + the pulga_run project to open), all built
 # from that same tarball. Tag, codename and file prefix come from
-# `make release-tag` / `make release-name` / `make release-pkg`.
+# `make release-tag` / `make release-name` / `make release-pkg` /
+# `make release-editor-pkg`.
 name: release
 
 on:
@@ -18,6 +20,7 @@ jobs:
       tag: ${{ steps.meta.outputs.tag }}
       name: ${{ steps.meta.outputs.name }}
       pkg: ${{ steps.meta.outputs.pkg }}
+      editor_pkg: ${{ steps.meta.outputs.editor_pkg }}
     steps:
       - uses: actions/checkout@v4
       - run: make libs
@@ -27,6 +30,7 @@ jobs:
           echo "tag=$(make -s release-tag)" >> "$GITHUB_OUTPUT"
           echo "name=$(make -s release-name)" >> "$GITHUB_OUTPUT"
           echo "pkg=$(make -s release-pkg)" >> "$GITHUB_OUTPUT"
+          echo "editor_pkg=$(make -s release-editor-pkg)" >> "$GITHUB_OUTPUT"
       - run: make dist
       - uses: actions/upload-artifact@v4
         with:
@@ -52,6 +56,8 @@ jobs:
         shell: bash
     env:
       PKG: ${{ needs.source.outputs.pkg }}
+      EDITOR_PKG: ${{ needs.source.outputs.editor_pkg }}
+      BINS: 42run pulga_editor
       CARGO_TARGET_DIR: ${{ github.workspace }}/target
     steps:
       - uses: actions/download-artifact@v4
@@ -64,27 +70,42 @@ jobs:
         run: |
           tar -xzf dist/$PKG-src.tar.gz
           cd $PKG
+          bin_args=$(printf -- '--bin %s ' $BINS)
           if [ "${{ matrix.target }}" = universal-apple-darwin ]; then
-            rustup target add x86_64-apple-darwin aarch64-apple-darwin
-            cargo build --release --bin 42run --target x86_64-apple-darwin
-            cargo build --release --bin 42run --target aarch64-apple-darwin
-            lipo -create -output ../42run \
-              "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/42run" \
-              "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/42run"
+            for arch in x86_64 aarch64; do
+              rustup target add $arch-apple-darwin
+              cargo build --release $bin_args --target $arch-apple-darwin
+            done
+            for bin in $BINS; do
+              lipo -create -output ../$bin \
+                "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/$bin" \
+                "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/$bin"
+            done
           else
             rustup target add ${{ matrix.target }}
-            cargo build --release --bin 42run --target ${{ matrix.target }}
-            cp "$CARGO_TARGET_DIR/${{ matrix.target }}/release/42run"* ..
+            cargo build --release $bin_args --target ${{ matrix.target }}
+            exe=$([ "$RUNNER_OS" = Windows ] && echo .exe || true)
+            for bin in $BINS; do
+              cp "$CARGO_TARGET_DIR/${{ matrix.target }}/release/$bin$exe" ..
+            done
           fi
       - name: Package
         run: |
-          mkdir out
-          pkg=$PKG-${{ matrix.label }}
-          if [ "$RUNNER_OS" = Windows ]; then
-            7z a "out/$pkg.zip" 42run.exe
-          else
-            tar -czf "out/$pkg.tar.gz" 42run
-          fi
+          mkdir out game editor editor/pulga_run
+          exe=$([ "$RUNNER_OS" = Windows ] && echo .exe || true)
+          cp 42run$exe game/
+          # The engine ships with the pulga_run project, ready to open.
+          cp pulga_editor$exe editor/
+          cp $PKG/pulga_run/project.toml editor/pulga_run/
+          for part in "game $PKG" "editor $EDITOR_PKG"; do
+            set -- $part
+            name=$2-${{ matrix.label }}
+            if [ "$RUNNER_OS" = Windows ]; then
+              (cd $1 && 7z a "../out/$name.zip" .)
+            else
+              tar -czf "out/$name.tar.gz" -C $1 .
+            fi
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.label }}
