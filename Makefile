@@ -31,15 +31,17 @@ help: ## Show this help
 all: $(NAME) ## Build the release 42run binary into the repo root
 
 # Phony: cargo does its own up-to-date check, make just always asks it.
+# rm before cp: replacing a binary that's running fails ("text file busy"),
+# unlinking it doesn't.
 $(NAME): | $(LIBS)
 	cargo build --release --bin $(NAME)
-	cp "$(TARGET_DIR)/release/$(NAME)" $(NAME)
+	rm -f $(NAME) && cp "$(TARGET_DIR)/release/$(NAME)" $(NAME)
 
 editor: $(EDITOR) ## Build the release engine editor (pulga_editor) into the repo root
 
 $(EDITOR): | $(LIBS)
 	cargo build --release --bin $(EDITOR)
-	cp "$(TARGET_DIR)/release/$(EDITOR)" $(EDITOR)
+	rm -f $(EDITOR) && cp "$(TARGET_DIR)/release/$(EDITOR)" $(EDITOR)
 
 # The libs are their own repos (gitignored here): clone them if missing,
 # leave them alone if present.

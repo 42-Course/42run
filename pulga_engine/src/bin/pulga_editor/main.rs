@@ -5,7 +5,9 @@
 //! ```
 //!
 //! Opens `PROJECT_DIR/project.toml`, or creates it from
-//! [`Project::starter`] if the directory has none. The editor is itself a
+//! [`Project::starter`] if the directory has none. Without `PROJECT_DIR`,
+//! opens the current directory's project, or the one project found in its
+//! subdirectories (e.g. `pulga_run/` from the repo root). The editor is itself a
 //! [`Game`] running on the engine: what you see is what the engine draws.
 //!
 //! - **Scene** (left): the project's zones and groups. Groups expand to show
@@ -313,10 +315,13 @@ impl Editor {
     }
 
     fn play(&mut self, engine: &mut Engine) {
-        if !self.dir.join("Cargo.toml").exists() {
+        // The game is the project's own crate: a Cargo.toml with a
+        // [package] (a bare workspace manifest has nothing to run).
+        let manifest = std::fs::read_to_string(self.dir.join("Cargo.toml")).unwrap_or_default();
+        if !manifest.lines().any(|l| l.trim() == "[package]") {
             self.toast(
                 engine,
-                "No Cargo.toml in this project: nothing to play",
+                "This project has no game crate (Cargo.toml with [package]) to play",
                 ToastKind::Error,
             );
             return;
@@ -444,6 +449,28 @@ impl Game for Editor {
     }
 }
 
+/// With no directory given: the current one if it holds a project, else
+/// its only subdirectory holding one (the repo root, or a release folder
+/// shipping `pulga_run/` next to the editor), else the current one (a
+/// starter project gets created there).
+fn find_project() -> PathBuf {
+    let here = PathBuf::from(".");
+    if here.join(PROJECT_FILE).exists() {
+        return here;
+    }
+    let mut found: Vec<PathBuf> = std::fs::read_dir(&here)
+        .into_iter()
+        .flatten()
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.join(PROJECT_FILE).is_file())
+        .collect();
+    if found.len() == 1 {
+        return found.remove(0);
+    }
+    here
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (options, dir): (Vec<String>, Vec<String>) = {
@@ -465,7 +492,10 @@ fn main() {
         }
         (options, dir)
     };
-    let dir = PathBuf::from(dir.into_iter().next().unwrap_or_else(|| ".".into()));
+    let dir = match dir.into_iter().next() {
+        Some(dir) => PathBuf::from(dir),
+        None => find_project(),
+    };
     let (project, status) = if dir.join(PROJECT_FILE).exists() {
         match Project::load(&dir) {
             Ok(p) => (p, format!("Opened {}", dir.display())),
