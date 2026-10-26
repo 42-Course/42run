@@ -6,8 +6,9 @@
 //!
 //! Opens `PROJECT_DIR/project.toml`, or creates it from
 //! [`Project::starter`] if the directory has none. Without `PROJECT_DIR`,
-//! opens the current directory's project, or the one project found in its
-//! subdirectories (e.g. `pulga_run/` from the repo root). The editor is itself a
+//! opens the current directory's project (unless it's a Cargo workspace
+//! root), or the one project found in its subdirectories (e.g.
+//! `pulga_run/` from the repo root); it never creates one then. The editor is itself a
 //! [`Game`] running on the engine: what you see is what the engine draws.
 //!
 //! - **Scene** (left): the project's zones and groups. Groups expand to show
@@ -36,7 +37,7 @@ mod preview;
 mod viewport;
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Child, Command};
 
 use pulga_engine::gui::{Theme, ToastKind};
@@ -317,13 +318,12 @@ impl Editor {
     fn play(&mut self, engine: &mut Engine) {
         // The game is the project's own crate: a Cargo.toml with a
         // [package] (a bare workspace manifest has nothing to run).
-        let manifest = std::fs::read_to_string(self.dir.join("Cargo.toml")).unwrap_or_default();
-        if !manifest.lines().any(|l| l.trim() == "[package]") {
-            self.toast(
-                engine,
-                "This project has no game crate (Cargo.toml with [package]) to play",
-                ToastKind::Error,
+        if !has_package(&self.dir) {
+            let text = format!(
+                "{} has no game crate to play (a Cargo.toml with [package]). Open the game's folder, e.g. pulga_editor pulga_run",
+                self.dir.display()
             );
+            self.toast(engine, text, ToastKind::Error);
             return;
         }
         if self.dirty {
@@ -449,26 +449,41 @@ impl Game for Editor {
     }
 }
 
-/// With no directory given: the current one if it holds a project, else
-/// its only subdirectory holding one (the repo root, or a release folder
-/// shipping `pulga_run/` next to the editor), else the current one (a
-/// starter project gets created there).
-fn find_project() -> PathBuf {
+/// Whether `dir`'s Cargo.toml has a `[package]`: a game crate to play.
+fn has_package(dir: &Path) -> bool {
+    let manifest = std::fs::read_to_string(dir.join("Cargo.toml")).unwrap_or_default();
+    manifest.lines().any(|l| l.trim() == "[package]")
+}
+
+/// Whether `dir` is a Cargo workspace root (like the 42Run repo root):
+/// games live in its members, not in it.
+fn is_workspace_root(dir: &Path) -> bool {
+    let manifest = std::fs::read_to_string(dir.join("Cargo.toml")).unwrap_or_default();
+    manifest.lines().any(|l| l.trim() == "[workspace]") && !has_package(dir)
+}
+
+/// With no directory given: the current one if it holds a project (unless
+/// it's a workspace root), else its only subdirectory holding one (the repo
+/// root, or a release folder shipping `pulga_run/` next to the editor).
+fn find_project() -> Option<PathBuf> {
     let here = PathBuf::from(".");
-    if here.join(PROJECT_FILE).exists() {
-        return here;
+    let has_project = |d: &Path| d.join(PROJECT_FILE).is_file();
+    if has_project(&here) && !is_workspace_root(&here) {
+        return Some(here);
     }
     let mut found: Vec<PathBuf> = std::fs::read_dir(&here)
         .into_iter()
         .flatten()
         .flatten()
         .map(|e| e.path())
-        .filter(|p| p.join(PROJECT_FILE).is_file())
+        .filter(|p| has_project(p))
         .collect();
-    if found.len() == 1 {
-        return found.remove(0);
+    found.sort();
+    match found.len() {
+        1 => found.pop(),
+        _ if has_project(&here) => Some(here),
+        _ => None,
     }
-    here
 }
 
 fn main() {
@@ -494,7 +509,13 @@ fn main() {
     };
     let dir = match dir.into_iter().next() {
         Some(dir) => PathBuf::from(dir),
-        None => find_project(),
+        None => find_project().unwrap_or_else(|| {
+            eprintln!(
+                "pulga_editor: no project.toml here or in a subfolder.\n\
+                 usage: pulga_editor PROJECT_DIR   (created with a starter project if missing)"
+            );
+            std::process::exit(2);
+        }),
     };
     let (project, status) = if dir.join(PROJECT_FILE).exists() {
         match Project::load(&dir) {
