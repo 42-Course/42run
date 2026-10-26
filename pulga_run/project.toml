@@ -1,159 +1,153 @@
 name = "pulga_run"
+next_id = 9
 
-[[tiles]]
-name = "straight"
+[[zones]]
+id = 1
+name = "Hall"
 kind = "straight"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -5.0]
 size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles]]
-name = "left"
+[[zones.props]]
+position = [-4.25, 1.0, -5.0]
+size = [1.5, 2.0, 10.0]
+color = [0.32, 0.34, 0.4]
+solid = true
+
+[[zones.props]]
+position = [4.25, 1.0, -5.0]
+size = [1.5, 2.0, 10.0]
+color = [0.32, 0.34, 0.4]
+solid = true
+
+[[zones]]
+id = 2
+name = "Left corner"
 kind = "left"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -4.25]
 size = [7.0, 0.2, 8.5]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [-4.25, -0.1, -5.0]
 size = [1.5, 0.2, 7.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles]]
-name = "right"
+[[zones]]
+id = 3
+name = "Right corner"
 kind = "right"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -4.25]
 size = [7.0, 0.2, 8.5]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [4.25, -0.1, -5.0]
 size = [1.5, 0.2, 7.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles]]
-name = "fork"
+[[zones]]
+id = 4
+name = "Junction"
 kind = "fork"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -4.25]
 size = [7.0, 0.2, 8.5]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [-4.25, -0.1, -5.0]
 size = [1.5, 0.2, 7.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [4.25, -0.1, -5.0]
 size = [1.5, 0.2, 7.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles]]
-name = "block-left"
+[[zones]]
+id = 5
+name = "Bench"
 kind = "straight"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -5.0]
 size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "obstacle"
-position = [-2.2, 0.5, -5.0]
-size = [1.0, 1.0, 1.0]
-color = [0.8, 0.25, 0.2]
+[[zones.props]]
+position = [0.0, 0.4, -5.0]
+size = [1.6, 0.8, 0.8]
+color = [0.86, 0.3, 0.3]
+solid = true
 
-[[tiles]]
-name = "block-middle"
+[[zones]]
+id = 6
+name = "Low wall"
 kind = "straight"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -5.0]
 size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "obstacle"
-position = [0.0, 0.5, -5.0]
-size = [1.0, 1.0, 1.0]
-color = [0.8, 0.25, 0.2]
+[[zones.props]]
+position = [0.0, 0.35, -5.0]
+size = [7.0, 0.7, 0.5]
+color = [0.23, 0.51, 0.96]
+solid = true
 
-[[tiles]]
-name = "block-right"
+[[zones]]
+id = 7
+name = "Pillars"
 kind = "straight"
 
-[[tiles.props]]
-kind = "scenery"
+[[zones.props]]
 position = [0.0, -0.1, -5.0]
 size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
+color = [0.56, 0.57, 0.6]
+solid = true
 
-[[tiles.props]]
-kind = "obstacle"
-position = [2.2, 0.5, -5.0]
-size = [1.0, 1.0, 1.0]
-color = [0.8, 0.25, 0.2]
+[[zones.props]]
+position = [-2.2, 1.0, -5.0]
+size = [1.0, 2.0, 1.0]
+color = [0.32, 0.34, 0.4]
+solid = true
 
-[[tiles]]
-name = "straight-1"
-kind = "straight"
+[[zones.props]]
+position = [2.2, 1.0, -5.0]
+size = [1.0, 2.0, 1.0]
+color = [0.32, 0.34, 0.4]
+solid = true
 
-[[tiles.props]]
-kind = "scenery"
-position = [0.0, -0.1, -5.0]
-size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
+[[groups]]
+id = 8
+name = "Gauntlet"
+order = "sequence"
 
-[[tiles]]
-name = "straight-2"
-kind = "straight"
+[[groups.children]]
+zone = 5
 
-[[tiles.props]]
-kind = "scenery"
-position = [0.0, -0.1, -5.0]
-size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
+[[groups.children]]
+zone = 6
 
-[[tiles]]
-name = "straight-3"
-kind = "straight"
-
-[[tiles.props]]
-kind = "scenery"
-position = [0.0, -0.1, -5.0]
-size = [7.0, 0.2, 10.0]
-color = [0.55, 0.55, 0.58]
-
-[[tiles]]
-name = "left-1"
-kind = "left"
-
-[[tiles.props]]
-kind = "scenery"
-position = [0.0, -0.1, -4.25]
-size = [7.0, 0.2, 8.5]
-color = [0.55, 0.55, 0.58]
-
-[[tiles.props]]
-kind = "scenery"
-position = [-4.25, -0.1, -5.0]
-size = [1.5, 0.2, 7.0]
-color = [0.55, 0.55, 0.58]
+[[groups.children]]
+zone = 7

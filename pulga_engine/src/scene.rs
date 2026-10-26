@@ -111,10 +111,12 @@ pub struct Entity {
     /// Hidden entities (and only they, not their children) are skipped when
     /// drawing.
     pub visible: bool,
+    /// Drawn after everything else, on top (gizmos, selection markers).
+    pub overlay: bool,
 }
 
 impl Default for Entity {
-    /// Visible, white, no mesh, no parent, identity transform.
+    /// Visible, white, not on top, no mesh, no parent, identity transform.
     fn default() -> Self {
         Self {
             transform: Transform::default(),
@@ -122,6 +124,7 @@ impl Default for Entity {
             mesh: None,
             color: Color::rgb(1.0, 1.0, 1.0),
             visible: true,
+            overlay: false,
         }
     }
 }
@@ -143,6 +146,15 @@ impl Entity {
     /// The same entity with its color replaced.
     pub fn with_color(self, color: Color) -> Self {
         Self { color, ..self }
+    }
+
+    /// The same entity, drawn on top of everything (see
+    /// [`Entity::overlay`]).
+    pub fn on_top(self) -> Self {
+        Self {
+            overlay: true,
+            ..self
+        }
     }
 
     /// The same entity, attached to `parent`.

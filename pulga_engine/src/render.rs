@@ -1,5 +1,5 @@
 //! Turns a frame of engine state into pixels: the [`World`] through the
-//! camera, then the UI on top.
+//! camera, overlay entities on top, then the UI.
 //!
 //! The drawing itself belongs to the libraries: meshes go through
 //! `pulga_win_lib`'s [`MeshRenderer`], UI [`DrawCommand`]s through
@@ -28,6 +28,16 @@ impl MeshId {
     }
 }
 
+/// Distance fog: far geometry fades into a color.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Fog {
+    /// The color far things fade into (usually the clear color).
+    pub color: Color,
+    /// How fast fog thickens, per world unit (about `1.5 / density` units
+    /// away a mesh is mostly fogged).
+    pub density: f32,
+}
+
 /// Owns the engine's GPU resources.
 ///
 /// Only the engine creates one, on the GL thread, after the GL context is
@@ -36,15 +46,19 @@ impl MeshId {
 pub struct Renderer {
     /// Background color the frame is cleared to.
     pub clear_color: Color,
+    /// Distance fog over the world (not over overlay entities), if any.
+    pub fog: Option<Fog>,
     meshes: Vec<GlMesh>,
-    cube: MeshId,
     mesh_renderer: MeshRenderer,
     gui: GuiRenderer,
     _gl_thread: PhantomData<*const ()>,
 }
 
+const CUBE: MeshId = MeshId(0);
+const SPHERE: MeshId = MeshId(1);
+
 impl Renderer {
-    /// Sets up the library pipelines and uploads the built-in unit cube.
+    /// Sets up the library pipelines and uploads the built-in meshes.
     ///
     /// # Safety
     /// A GL 4.1 context must be current on this thread.
@@ -52,8 +66,11 @@ impl Renderer {
         unsafe {
             Self {
                 clear_color: Color::rgb(0.53, 0.75, 0.92),
-                meshes: vec![GlMesh::upload(&primitives::cube(1.0))],
-                cube: MeshId(0),
+                fog: None,
+                meshes: vec![
+                    GlMesh::upload(&primitives::cube(1.0)),
+                    GlMesh::upload(&primitives::sphere(0.5, 12, 18)),
+                ],
                 mesh_renderer: MeshRenderer::new(),
                 gui: GuiRenderer::new(),
                 _gl_thread: PhantomData,
@@ -71,13 +88,19 @@ impl Renderer {
     }
 
     /// The built-in unit cube centered on the origin. Scaled by an entity's
-    /// transform, it draws every box-shaped thing (tiles are made of these).
+    /// transform, it draws every box-shaped thing (zones are made of these).
     pub fn cube(&self) -> MeshId {
-        self.cube
+        CUBE
     }
 
-    /// Clears the frame, draws every visible entity that has a mesh, then
-    /// `ui` on top. `screen` is the window size in pixels.
+    /// The built-in sphere of diameter 1 centered on the origin.
+    pub fn sphere(&self) -> MeshId {
+        SPHERE
+    }
+
+    /// Clears the frame, draws every visible entity that has a mesh
+    /// (overlay ones last, on top), then `ui`. `screen` is the window size
+    /// in pixels.
     pub(crate) fn draw(
         &mut self,
         world: &World,
@@ -89,14 +112,28 @@ impl Renderer {
         // SAFETY: see `add_mesh`.
         unsafe {
             gfx::clear(rgba(self.clear_color));
-            self.mesh_renderer.begin(&camera.proj(), &camera.view());
-            for (id, entity) in world.iter() {
-                let Some(MeshId(mesh)) = entity.mesh.filter(|_| entity.visible) else {
-                    continue;
-                };
-                let model = world.world_matrix(id).expect("id comes from world.iter()");
-                self.mesh_renderer
-                    .draw(&self.meshes[mesh], &model, rgba(entity.color));
+            for overlay in [false, true] {
+                if overlay {
+                    gfx::clear_depth();
+                }
+                self.mesh_renderer.begin(&camera.proj(), &camera.view());
+                match self.fog.filter(|_| !overlay) {
+                    Some(fog) => self
+                        .mesh_renderer
+                        .set_fog([fog.color.r, fog.color.g, fog.color.b], fog.density),
+                    None => self.mesh_renderer.set_fog([0.0; 3], 0.0),
+                }
+                for (id, entity) in world.iter() {
+                    if entity.overlay != overlay || !entity.visible {
+                        continue;
+                    }
+                    let Some(MeshId(mesh)) = entity.mesh else {
+                        continue;
+                    };
+                    let model = world.world_matrix(id).expect("id comes from world.iter()");
+                    self.mesh_renderer
+                        .draw(&self.meshes[mesh], &model, rgba(entity.color));
+                }
             }
             self.gui.draw(ui, screen.0, screen.1);
         }
